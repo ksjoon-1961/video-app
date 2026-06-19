@@ -9,7 +9,116 @@
 <body>
   <div class="container">
     <h1>VideoApp</h1>
-    <p>준비 중입니다.</p>
+
+    <!-- 비로그인 상태 -->
+    <section id="auth-section">
+      <div class="tab-bar">
+        <button id="tab-login"  class="tab active" onclick="showTab('login')">로그인</button>
+        <button id="tab-signup" class="tab"        onclick="showTab('signup')">회원가입</button>
+      </div>
+
+      <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+        <input type="email"    id="login-email"    placeholder="이메일"    required autocomplete="email">
+        <input type="password" id="login-password" placeholder="비밀번호"  required autocomplete="current-password">
+        <button type="submit"  id="login-btn">로그인</button>
+      </form>
+
+      <form id="signup-form" class="auth-form hidden" onsubmit="handleSignup(event)">
+        <input type="email"    id="signup-email"    placeholder="이메일"          required autocomplete="email">
+        <input type="password" id="signup-password" placeholder="비밀번호 (6자 이상)" required minlength="6" autocomplete="new-password">
+        <button type="submit"  id="signup-btn">회원가입</button>
+      </form>
+
+      <p id="auth-msg" class="msg"></p>
+    </section>
+
+    <!-- 로그인 상태 -->
+    <section id="user-section" class="hidden">
+      <p id="user-email"></p>
+      <pre class="code" id="api-me-result">로딩 중…</pre>
+      <button onclick="handleLogout()">로그아웃</button>
+    </section>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    const sb = supabase.createClient("{{ supabase_url }}", "{{ supabase_anon_key }}");
+
+    const authSection = document.getElementById('auth-section');
+    const userSection = document.getElementById('user-section');
+    const authMsg     = document.getElementById('auth-msg');
+
+    function showTab(tab) {
+      document.getElementById('login-form').classList.toggle('hidden',  tab !== 'login');
+      document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup');
+      document.getElementById('tab-login').classList.toggle('active',   tab === 'login');
+      document.getElementById('tab-signup').classList.toggle('active',  tab === 'signup');
+      setMsg('');
+    }
+
+    function setMsg(text, isError = false) {
+      authMsg.textContent = text;
+      authMsg.className = 'msg' + (text ? (isError ? ' error' : ' success') : '');
+    }
+
+    function setLoading(btnId, loading) {
+      const btn = document.getElementById(btnId);
+      btn.disabled = loading;
+      btn.textContent = loading ? '처리 중…'
+        : (btnId === 'login-btn' ? '로그인' : '회원가입');
+    }
+
+    async function showUser(session) {
+      authSection.classList.add('hidden');
+      userSection.classList.remove('hidden');
+      document.getElementById('user-email').textContent = '로그인: ' + session.user.email;
+
+      try {
+        const res  = await fetch('/api/me', {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        const data = await res.json();
+        document.getElementById('api-me-result').textContent = JSON.stringify(data, null, 2);
+      } catch {
+        document.getElementById('api-me-result').textContent = '(/api/me 호출 실패)';
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      setLoading('login-btn', true);
+      const { data, error } = await sb.auth.signInWithPassword({
+        email:    document.getElementById('login-email').value,
+        password: document.getElementById('login-password').value,
+      });
+      setLoading('login-btn', false);
+      if (error) { setMsg(error.message, true); return; }
+      await showUser(data.session);
+    }
+
+    async function handleSignup(e) {
+      e.preventDefault();
+      setLoading('signup-btn', true);
+      const { error } = await sb.auth.signUp({
+        email:    document.getElementById('signup-email').value,
+        password: document.getElementById('signup-password').value,
+      });
+      setLoading('signup-btn', false);
+      if (error) { setMsg(error.message, true); return; }
+      setMsg('확인 이메일을 발송했습니다. 메일함을 확인해 주세요.');
+    }
+
+    async function handleLogout() {
+      await sb.auth.signOut();
+      userSection.classList.add('hidden');
+      authSection.classList.remove('hidden');
+      setMsg('');
+    }
+
+    // 페이지 로드 시 기존 세션 복원
+    sb.auth.getSession().then(({ data: { session } }) => {
+      if (session) showUser(session);
+    });
+  </script>
 </body>
 </html>

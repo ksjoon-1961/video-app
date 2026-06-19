@@ -133,4 +133,36 @@ h1 {
   white-space: pre-wrap;
 }
 
+/* 영상 버튼 그리드 */
+#video-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.video-btn {
+  width: 100%;
+  min-height: 56px;
+  padding: 1rem 1.25rem;
+  background: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.video-btn:hover  { background: #2a2a2a; border-color: #3b82f6; }
+.video-btn:active { background: #1a2740; }
+
+.logout-btn {
+  margin-top: 0.5rem;
+  background: #374151 !important;
+}
+.logout-btn:hover { background: #4b5563 !important; }
+
 .hidden { display: none !important; }

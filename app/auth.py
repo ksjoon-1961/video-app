@@ -23,18 +23,15 @@ def _client() -> PyJWKClient:
     return _jwks_client
 
 
-def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> dict:
+def _verify(token: str) -> dict:
     try:
-        signing_key = _client().get_signing_key_from_jwt(credentials.credentials)
-        payload = jwt.decode(
-            credentials.credentials,
+        signing_key = _client().get_signing_key_from_jwt(token)
+        return jwt.decode(
+            token,
             signing_key.key,
             algorithms=["ES256"],
             audience="authenticated",
         )
-        return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
@@ -43,3 +40,16 @@ def get_current_user(
         raise
     except Exception:
         raise HTTPException(status_code=500, detail="Auth configuration error")
+
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> dict:
+    return _verify(credentials.credentials)
+
+
+def get_auth_context(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> dict:
+    user = _verify(credentials.credentials)
+    return {"user": user, "token": credentials.credentials}

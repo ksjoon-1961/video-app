@@ -87,25 +87,35 @@
     async function handleLogin(e) {
       e.preventDefault();
       setLoading('login-btn', true);
-      const { data, error } = await sb.auth.signInWithPassword({
-        email:    document.getElementById('login-email').value,
-        password: document.getElementById('login-password').value,
-      });
-      setLoading('login-btn', false);
-      if (error) { setMsg(error.message, true); return; }
-      await showUser(data.session);
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({
+          email:    document.getElementById('login-email').value,
+          password: document.getElementById('login-password').value,
+        });
+        if (error) { setMsg(error.message, true); return; }
+        await showUser(data.session);
+      } catch (err) {
+        setMsg('연결 오류: ' + (err.message || err), true);
+      } finally {
+        setLoading('login-btn', false);
+      }
     }
 
     async function handleSignup(e) {
       e.preventDefault();
       setLoading('signup-btn', true);
-      const { error } = await sb.auth.signUp({
-        email:    document.getElementById('signup-email').value,
-        password: document.getElementById('signup-password').value,
-      });
-      setLoading('signup-btn', false);
-      if (error) { setMsg(error.message, true); return; }
-      setMsg('확인 이메일을 발송했습니다. 메일함을 확인해 주세요.');
+      try {
+        const { error } = await sb.auth.signUp({
+          email:    document.getElementById('signup-email').value,
+          password: document.getElementById('signup-password').value,
+        });
+        if (error) { setMsg(error.message, true); return; }
+        setMsg('확인 이메일을 발송했습니다. 메일함을 확인해 주세요.');
+      } catch (err) {
+        setMsg('연결 오류: ' + (err.message || err), true);
+      } finally {
+        setLoading('signup-btn', false);
+      }
     }
 
     async function handleLogout() {

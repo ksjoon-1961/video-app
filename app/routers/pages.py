@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.config import settings
@@ -16,3 +16,12 @@ async def index(request: Request):
         "supabase_url": settings.SUPABASE_URL or "",
         "supabase_anon_key": settings.SUPABASE_ANON_KEY or "",
     })
+
+
+@router.get("/sw.js")
+async def service_worker():
+    return FileResponse(
+        "static/sw.js",
+        media_type="application/javascript",
+        headers={"Service-Worker-Allowed": "/"},
+    )

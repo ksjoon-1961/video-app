@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>VideoApp</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -50,5 +53,8 @@
     const sb = supabase.createClient("{{ supabase_url }}", "{{ supabase_anon_key }}");
   </script>
   <script src="/static/js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+  </script>
 </body>
 </html>

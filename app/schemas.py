@@ -7,3 +7,8 @@ class Video(BaseModel):
     name: str
     storage_path: str
     sort_order: int
+
+
+class SignedUrlResponse(BaseModel):
+    url: str
+    expires_in: int

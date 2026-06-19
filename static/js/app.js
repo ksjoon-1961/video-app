@@ -1,8 +1,8 @@
 // sb (Supabase client) is initialized in index.html before this script loads
 
-const authSection   = document.getElementById('auth-section');
-const userSection   = document.getElementById('user-section');
-const authMsg       = document.getElementById('auth-msg');
+const authSection = document.getElementById('auth-section');
+const userSection = document.getElementById('user-section');
+const authMsg     = document.getElementById('auth-msg');
 
 /* ── 탭 전환 ── */
 function showTab(tab) {
@@ -27,6 +27,44 @@ function setLoading(btnId, loading) {
     : (btnId === 'login-btn' ? '로그인' : '회원가입');
 }
 
+/* ── 영상 재생 ── */
+async function playVideo(videoId, token, btn) {
+  const playerSection = document.getElementById('player-section');
+  const videoEl       = document.getElementById('video-player');
+  const playerMsg     = document.getElementById('player-msg');
+
+  videoEl.src = '';
+  playerSection.classList.add('hidden');
+  playerMsg.textContent = '';
+  playerMsg.className = 'msg';
+
+  const prevText = btn.textContent;
+  btn.disabled   = true;
+  btn.textContent = '로딩 중…';
+
+  try {
+    const res = await fetch(`/api/videos/${videoId}/url`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      playerMsg.textContent = '영상을 불러오지 못했습니다.';
+      playerMsg.className = 'msg error';
+      return;
+    }
+    const { url } = await res.json();
+    videoEl.src = url;
+    videoEl.load();
+    playerSection.classList.remove('hidden');
+    playerSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (err) {
+    playerMsg.textContent = '오류: ' + err.message;
+    playerMsg.className = 'msg error';
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = prevText;
+  }
+}
+
 /* ── 영상 버튼 렌더링 ── */
 async function loadVideos(token) {
   const container = document.getElementById('video-buttons');
@@ -49,10 +87,7 @@ async function loadVideos(token) {
       const btn = document.createElement('button');
       btn.className   = 'video-btn';
       btn.textContent = video.name;
-      btn.onclick     = () => {
-        // P3에서 재생 구현 예정
-        console.log('selected:', video.id, video.name);
-      };
+      btn.onclick     = () => playVideo(video.id, token, btn);
       container.appendChild(btn);
     });
   } catch (err) {
@@ -107,9 +142,11 @@ async function handleSignup(e) {
 /* ── 로그아웃 ── */
 async function handleLogout() {
   await sb.auth.signOut();
+  document.getElementById('video-buttons').innerHTML = '';
+  document.getElementById('player-section').classList.add('hidden');
+  document.getElementById('video-player').src = '';
   userSection.classList.add('hidden');
   authSection.classList.remove('hidden');
-  document.getElementById('video-buttons').innerHTML = '';
   setMsg('');
 }
 

@@ -10,6 +10,7 @@ class Settings:
     SUPABASE_SERVICE_ROLE_KEY: str | None = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
     SUPABASE_JWT_SECRET: str | None = os.getenv("SUPABASE_JWT_SECRET")
     VIDEO_BUCKET: str = os.getenv("VIDEO_BUCKET", "videos")
+    SIGNED_URL_TTL: int = int(os.getenv("SIGNED_URL_TTL", "3600"))
     PORT: int = int(os.getenv("PORT", "8000"))
 
 

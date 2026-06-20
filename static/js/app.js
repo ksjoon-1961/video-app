@@ -128,6 +128,10 @@ async function loadVideos(token) {
 
     if (list.length === 0) { status.textContent = '등록된 영상이 없습니다.'; return; }
 
+    const GRID_COLS = 3;
+    const GRID_ROWS = 4;
+    const GRID_SIZE = GRID_COLS * GRID_ROWS;
+
     list.forEach(video => {
       const btn = document.createElement('button');
       btn.className   = 'video-btn';
@@ -145,6 +149,15 @@ async function loadVideos(token) {
       }
       container.appendChild(btn);
     });
+
+    const remaining = GRID_SIZE - list.length;
+    for (let i = 0; i < remaining; i++) {
+      const btn = document.createElement('button');
+      btn.className   = 'video-btn not-ready';
+      btn.textContent = '준비 중';
+      btn.onclick     = () => {};
+      container.appendChild(btn);
+    }
   } catch (err) {
     status.textContent = '오류: ' + err.message;
   }

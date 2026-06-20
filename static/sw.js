@@ -1,4 +1,4 @@
-const CACHE = "v1";
+const CACHE = "v2";
 const STATIC_URLS = [
   "/",
   "/static/css/style.css",
@@ -10,7 +10,10 @@ const STATIC_URLS = [
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(STATIC_URLS))
+    caches.open(CACHE).then((c) =>
+      // allSettled: 개별 실패가 전체 설치를 막지 않음
+      Promise.allSettled(STATIC_URLS.map((url) => c.add(url)))
+    )
   );
   self.skipWaiting();
 });

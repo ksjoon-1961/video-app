@@ -1,5 +1,29 @@
 // sb (Supabase client) is initialized in index.html before this script loads
 
+/* ── PWA 설치 프롬프트 ── */
+let _installPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _installPrompt = e;
+  document.getElementById('install-btn').classList.remove('hidden');
+});
+
+window.addEventListener('appinstalled', () => {
+  _installPrompt = null;
+  document.getElementById('install-btn').classList.add('hidden');
+});
+
+async function handleInstall() {
+  if (!_installPrompt) return;
+  _installPrompt.prompt();
+  const { outcome } = await _installPrompt.userChoice;
+  if (outcome === 'accepted') {
+    document.getElementById('install-btn').classList.add('hidden');
+  }
+  _installPrompt = null;
+}
+
 const authSection = document.getElementById('auth-section');
 const userSection = document.getElementById('user-section');
 const authMsg     = document.getElementById('auth-msg');

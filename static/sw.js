@@ -1,4 +1,4 @@
-const CACHE = "v2";
+const CACHE = "v3";
 const STATIC_URLS = [
   "/",
   "/static/css/style.css",

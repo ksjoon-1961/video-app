@@ -44,12 +44,13 @@
       <p id="player-msg" class="msg"></p>
       <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
 
-      <!-- 플레이어 오버레이 -->
-      <div id="player-section" class="hidden">
-        <div class="player-top">
+      <!-- 플레이어 -->
+      <div id="player-section">
+        <p id="player-placeholder" class="player-placeholder">영상을 선택하세요</p>
+        <div class="player-top hidden">
           <button class="close-btn" onclick="closePlayer()">✕ 닫기</button>
         </div>
-        <video id="video-player" controls playsinline></video>
+        <video id="video-player" controls playsinline class="hidden"></video>
       </div>
     </section>
   </div>

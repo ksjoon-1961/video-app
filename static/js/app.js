@@ -64,20 +64,25 @@ function closePlayer() {
   const videoEl = document.getElementById('video-player');
   videoEl.pause();
   videoEl.src = '';
-  document.getElementById('player-section').classList.add('hidden');
+  videoEl.classList.add('hidden');
+  document.querySelector('.player-top').classList.add('hidden');
+  document.getElementById('player-placeholder').classList.remove('hidden');
   document.getElementById('player-msg').textContent = '';
   document.getElementById('player-msg').className = 'msg';
 }
 
 /* ── 영상 재생 ── */
 async function playVideo(videoId, token, btn) {
-  const playerSection = document.getElementById('player-section');
-  const videoEl       = document.getElementById('video-player');
-  const playerMsg     = document.getElementById('player-msg');
+  const videoEl     = document.getElementById('video-player');
+  const playerMsg   = document.getElementById('player-msg');
+  const placeholder = document.getElementById('player-placeholder');
+  const playerTop   = document.querySelector('.player-top');
 
   videoEl.pause();
   videoEl.src = '';
-  playerSection.classList.add('hidden');
+  videoEl.classList.add('hidden');
+  playerTop.classList.add('hidden');
+  placeholder.classList.remove('hidden');
   playerMsg.textContent = '';
   playerMsg.className = 'msg';
 
@@ -100,7 +105,9 @@ async function playVideo(videoId, token, btn) {
     const { url } = await res.json();
     videoEl.src = url;
     videoEl.load();
-    playerSection.classList.remove('hidden');
+    placeholder.classList.add('hidden');
+    playerTop.classList.remove('hidden');
+    videoEl.classList.remove('hidden');
   } catch (err) {
     playerMsg.textContent = '오류: ' + err.message;
     playerMsg.className = 'msg error';

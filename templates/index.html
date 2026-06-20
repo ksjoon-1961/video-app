@@ -38,20 +38,141 @@
 
     <!-- 로그인 상태: 전체화면 그리드 -->
     <section id="user-section" class="hidden">
-      <p id="user-email"></p>
-      <p id="videos-status" class="msg"></p>
-      <div id="video-buttons"></div>
-      <p id="player-msg" class="msg"></p>
-      <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
 
-      <!-- 플레이어 -->
-      <div id="player-section">
-        <p id="player-placeholder" class="player-placeholder">영상을 선택하세요</p>
-        <div class="player-top hidden">
-          <button class="close-btn" onclick="closePlayer()">✕ 닫기</button>
-        </div>
-        <video id="video-player" controls playsinline class="hidden"></video>
+      <!-- ── 홈 화면 ── -->
+      <div id="screen-home" class="screen">
+        <p id="user-email"></p>
+        <p id="videos-status" class="msg"></p>
+        <div id="video-buttons"></div>
+        <p id="player-msg" class="msg"></p>
+        <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
       </div>
+
+      <!-- ── 상세 화면 ── -->
+      <div id="screen-detail" class="screen hidden">
+        <!-- 포스터 영역 -->
+        <div class="detail-poster">
+          <video id="video-player" controls playsinline class="hidden"></video>
+          <button class="player-close hidden" onclick="closePlayer()" aria-label="닫기">✕</button>
+          <div class="detail-header-row">
+            <div class="detail-title-block">
+              <h2 class="detail-title" id="detail-title">파친코</h2>
+              <p class="detail-meta" id="detail-meta">드라마 &nbsp;|&nbsp; 8부작 &nbsp;|&nbsp; 26.06.06. ~</p>
+            </div>
+            <button class="detail-play-btn" onclick="playCurrent()" aria-label="재생">▶</button>
+          </div>
+          <p id="detail-player-msg" class="msg"></p>
+        </div>
+
+        <!-- 탭 바 -->
+        <div class="detail-tab-bar">
+          <button class="detail-tab active" data-tab="info"     onclick="showDetailTab('info')">정보</button>
+          <button class="detail-tab"        data-tab="cast"     onclick="showDetailTab('cast')">출연</button>
+          <button class="detail-tab"        data-tab="watch"    onclick="showDetailTab('watch')">감상하기</button>
+          <button class="detail-tab"        data-tab="schedule" onclick="showDetailTab('schedule')">편성표</button>
+          <button class="detail-tab"        data-tab="ratings"  onclick="showDetailTab('ratings')">시청률</button>
+          <button class="detail-tab"        data-tab="series"   onclick="showDetailTab('series')">시리즈</button>
+        </div>
+
+        <!-- 탭 콘텐츠 -->
+        <div class="detail-content">
+
+          <!-- 정보 -->
+          <div id="tab-info" class="tab-panel">
+            <div class="tab-section">
+              <h3>프로그램 소개</h3>
+              <p>재일교포 가족 4대의 삶과 사랑, 희망을 담은 오리지널 드라마. 일제강점기부터 현대까지 이어지는 이야기를 통해 정체성과 생존, 꿈에 대한 보편적인 주제를 다룬다.</p>
+            </div>
+            <div class="tab-section">
+              <h3>기본 정보</h3>
+              <table class="info-table">
+                <tr><th>장르</th><td>드라마</td></tr>
+                <tr><th>방영</th><td>2022 ~ 2026</td></tr>
+                <tr><th>편수</th><td>8부작</td></tr>
+                <tr><th>제작</th><td>미디어레스</td></tr>
+                <tr><th>채널</th><td>Apple TV+</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- 출연 -->
+          <div id="tab-cast" class="tab-panel hidden">
+            <div class="cast-list">
+              <div class="cast-item"><div class="cast-avatar">윤</div><div class="cast-info"><strong>윤여정</strong><span>양진</span></div></div>
+              <div class="cast-item"><div class="cast-avatar">이</div><div class="cast-info"><strong>이민호</strong><span>한수</span></div></div>
+              <div class="cast-item"><div class="cast-avatar">김</div><div class="cast-info"><strong>김민하</strong><span>선자 (젊은)</span></div></div>
+              <div class="cast-item"><div class="cast-avatar">진</div><div class="cast-info"><strong>진하</strong><span>이삭</span></div></div>
+              <div class="cast-item"><div class="cast-avatar">소</div><div class="cast-info"><strong>소희</strong><span>경희</span></div></div>
+              <div class="cast-item"><div class="cast-avatar">정</div><div class="cast-info"><strong>정은채</strong><span>선자 (노년)</span></div></div>
+            </div>
+          </div>
+
+          <!-- 감상하기 -->
+          <div id="tab-watch" class="tab-panel hidden">
+            <div class="watch-platform">
+              <div class="platform-logo apple">A</div>
+              <span class="platform-name">애플TV</span>
+              <button class="platform-btn">보러가기</button>
+            </div>
+            <div class="watch-platform">
+              <div class="platform-logo tving">T</div>
+              <span class="platform-name">티빙</span>
+              <button class="platform-btn">보러가기</button>
+            </div>
+            <p class="watch-note">자세한 정보는 제공사를 통해 확인 부탁드립니다. ⓘ</p>
+          </div>
+
+          <!-- 편성표 -->
+          <div id="tab-schedule" class="tab-panel hidden">
+            <div class="schedule-list">
+              <div class="schedule-item"><div class="schedule-ep">1화</div><div class="schedule-info"><p class="schedule-title">선자</p><p class="schedule-date">2026.06.06 (금) 공개</p></div></div>
+              <div class="schedule-item"><div class="schedule-ep">2화</div><div class="schedule-info"><p class="schedule-title">한수</p><p class="schedule-date">2026.06.06 (금) 공개</p></div></div>
+              <div class="schedule-item"><div class="schedule-ep">3화</div><div class="schedule-info"><p class="schedule-title">이삭</p><p class="schedule-date">2026.06.13 (금) 예정</p></div></div>
+              <div class="schedule-item"><div class="schedule-ep">4화</div><div class="schedule-info"><p class="schedule-title">노아</p><p class="schedule-date">2026.06.20 (금) 예정</p></div></div>
+              <div class="schedule-item"><div class="schedule-ep">5화</div><div class="schedule-info"><p class="schedule-title">모자수</p><p class="schedule-date">2026.06.27 (금) 예정</p></div></div>
+            </div>
+          </div>
+
+          <!-- 시청률 -->
+          <div id="tab-ratings" class="tab-panel hidden">
+            <p class="ratings-heading">케이블 종합 주간시청률</p>
+            <div class="ratings-grid">
+              <div class="rating-card"><span class="rating-rank">1</span><div class="rating-thumb r1"></div><p class="rating-name">취사병 전설이 되다</p><p class="rating-pct">7.2%</p></div>
+              <div class="rating-card"><span class="rating-rank">2</span><div class="rating-thumb r2"></div><p class="rating-name">유퀴즈 온 더 블럭</p><p class="rating-pct">5.7%</p></div>
+              <div class="rating-card"><span class="rating-rank">3</span><div class="rating-thumb r3"></div><p class="rating-name">닥터 섬보이</p><p class="rating-pct">5.2%</p></div>
+              <div class="rating-card"><span class="rating-rank">4</span><div class="rating-thumb r4"></div><p class="rating-name">계급장 떼고 토로</p><p class="rating-pct">3.6%</p></div>
+            </div>
+          </div>
+
+          <!-- 시리즈 -->
+          <div id="tab-series" class="tab-panel hidden">
+            <div class="series-list">
+              <div class="series-item current">
+                <div class="series-thumb st2"></div>
+                <div class="series-info"><p class="series-title">파친코 시즌 2</p><p class="series-sub">2026 · 8부작 · 방영중</p></div>
+                <span class="series-badge">현재</span>
+              </div>
+              <div class="series-item">
+                <div class="series-thumb st1"></div>
+                <div class="series-info"><p class="series-title">파친코 시즌 1</p><p class="series-sub">2022 · 8부작 · 완결</p></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── 하단 네비게이션 ── -->
+      <nav class="bottom-nav">
+        <button class="nav-item active" data-screen="home"   onclick="showScreen('home')">
+          <span class="nav-icon">⊞</span>
+          <span class="nav-label">홈</span>
+        </button>
+        <button class="nav-item"        data-screen="detail" onclick="showScreen('detail')">
+          <span class="nav-icon">≡</span>
+          <span class="nav-label">상세</span>
+        </button>
+      </nav>
     </section>
   </div>
 

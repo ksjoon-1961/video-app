@@ -36,7 +36,47 @@ const authSection = document.getElementById('auth-section');
 const userSection = document.getElementById('user-section');
 const authMsg     = document.getElementById('auth-msg');
 
-/* ── 탭 전환 ── */
+/* ── 현재 상세 화면에 표시 중인 영상 ── */
+let _current = null;
+
+/* ── 화면 전환 (홈 ↔ 상세) ── */
+function showScreen(name) {
+  if (name !== 'detail') closePlayer();
+  ['home', 'detail'].forEach(s => {
+    document.getElementById('screen-' + s).classList.toggle('hidden', s !== name);
+  });
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.screen === name);
+  });
+}
+
+/* ── 영상 버튼 클릭 → 상세 화면 열기 ── */
+function openDetail(video, token) {
+  _current = { video, token };
+  document.getElementById('detail-title').textContent = video.name;
+  closePlayer();
+  showDetailTab('info');
+  showScreen('detail');
+  playCurrent();
+}
+
+/* ── 상세 화면에서 현재 영상 재생 ── */
+function playCurrent() {
+  if (!_current) return;
+  playVideo(_current.video.id, _current.token, document.querySelector('.detail-play-btn'));
+}
+
+/* ── 상세 탭 전환 ── */
+function showDetailTab(name) {
+  ['info', 'cast', 'watch', 'schedule', 'ratings', 'series'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('hidden', t !== name);
+  });
+  document.querySelectorAll('.detail-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === name);
+  });
+}
+
+/* ── 로그인/회원가입 탭 전환 ── */
 function showTab(tab) {
   document.getElementById('login-form').classList.toggle('hidden',  tab !== 'login');
   document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup');
@@ -59,36 +99,32 @@ function setLoading(btnId, loading) {
     : (btnId === 'login-btn' ? '로그인' : '회원가입');
 }
 
-/* ── 플레이어 닫기 ── */
+/* ── 플레이어 닫기 (포스터 정보 뷰로 복귀) ── */
 function closePlayer() {
   const videoEl = document.getElementById('video-player');
+  if (!videoEl) return;
   videoEl.pause();
   videoEl.src = '';
   videoEl.classList.add('hidden');
-  document.querySelector('.player-top').classList.add('hidden');
-  document.getElementById('player-placeholder').classList.remove('hidden');
-  document.getElementById('player-msg').textContent = '';
-  document.getElementById('player-msg').className = 'msg';
+  document.querySelector('.player-close').classList.add('hidden');
+  document.querySelector('#screen-detail .detail-header-row').classList.remove('hidden');
+  const msg = document.getElementById('detail-player-msg');
+  msg.textContent = '';
+  msg.className = 'msg';
 }
 
-/* ── 영상 재생 ── */
+/* ── 영상 재생 (상세 포스터에서) ── */
 async function playVideo(videoId, token, btn) {
-  const videoEl     = document.getElementById('video-player');
-  const playerMsg   = document.getElementById('player-msg');
-  const placeholder = document.getElementById('player-placeholder');
-  const playerTop   = document.querySelector('.player-top');
+  const videoEl  = document.getElementById('video-player');
+  const closeBtn = document.querySelector('.player-close');
+  const header   = document.querySelector('#screen-detail .detail-header-row');
+  const msg      = document.getElementById('detail-player-msg');
 
-  videoEl.pause();
-  videoEl.src = '';
-  videoEl.classList.add('hidden');
-  playerTop.classList.add('hidden');
-  placeholder.classList.remove('hidden');
-  playerMsg.textContent = '';
-  playerMsg.className = 'msg';
+  msg.textContent = '';
+  msg.className = 'msg';
 
-  const prevText = btn.textContent;
-  btn.disabled   = true;
-  btn.textContent = '로딩 중…';
+  const prevText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
 
   try {
     const res = await fetch(`/api/videos/${videoId}/url`, {
@@ -96,24 +132,24 @@ async function playVideo(videoId, token, btn) {
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      playerMsg.textContent = data.detail === 'video not ready'
+      msg.textContent = data.detail === 'video not ready'
         ? '준비 중입니다.'
         : '영상을 불러오지 못했습니다.';
-      playerMsg.className = 'msg error';
+      msg.className = 'msg error';
       return;
     }
     const { url } = await res.json();
     videoEl.src = url;
     videoEl.load();
-    placeholder.classList.add('hidden');
-    playerTop.classList.remove('hidden');
+    header.classList.add('hidden');
+    closeBtn.classList.remove('hidden');
     videoEl.classList.remove('hidden');
+    videoEl.play().catch(() => {});
   } catch (err) {
-    playerMsg.textContent = '오류: ' + err.message;
-    playerMsg.className = 'msg error';
+    msg.textContent = '오류: ' + err.message;
+    msg.className = 'msg error';
   } finally {
-    btn.disabled    = false;
-    btn.textContent = prevText;
+    if (btn) { btn.disabled = false; btn.textContent = prevText; }
   }
 }
 
@@ -145,7 +181,7 @@ async function loadVideos(token) {
       btn.textContent = video.name;
 
       if (video.is_ready) {
-        btn.onclick = () => playVideo(video.id, token, btn);
+        btn.onclick = () => openDetail(video, token);
       } else {
         btn.classList.add('not-ready');
         btn.onclick = () => {
@@ -174,6 +210,7 @@ async function loadVideos(token) {
 async function showUser(session) {
   authSection.classList.add('hidden');
   userSection.classList.remove('hidden');
+  showScreen('home');
   document.getElementById('user-email').textContent = session.user.email;
   await loadVideos(session.access_token);
 }

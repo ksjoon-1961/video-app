@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>VideoApp</title>
   <link rel="manifest" href="/static/manifest.json">
   <meta name="theme-color" content="#4F46E5">
@@ -11,11 +11,11 @@
 </head>
 <body>
   <div class="container">
-    <h1>VideoApp</h1>
-    <button id="install-btn" class="install-btn hidden" onclick="handleInstall()">홈 화면에 추가</button>
-
     <!-- 비로그인 상태 -->
     <section id="auth-section">
+      <h1>VideoApp</h1>
+      <button id="install-btn" class="install-btn hidden" onclick="handleInstall()">홈 화면에 추가</button>
+
       <div class="tab-bar">
         <button id="tab-login"  class="tab active" onclick="showTab('login')">로그인</button>
         <button id="tab-signup" class="tab"        onclick="showTab('signup')">회원가입</button>
@@ -36,16 +36,21 @@
       <p id="auth-msg" class="msg"></p>
     </section>
 
-    <!-- 로그인 상태 -->
+    <!-- 로그인 상태: 전체화면 그리드 -->
     <section id="user-section" class="hidden">
       <p id="user-email"></p>
       <p id="videos-status" class="msg"></p>
       <div id="video-buttons"></div>
       <p id="player-msg" class="msg"></p>
+      <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
+
+      <!-- 플레이어 오버레이 -->
       <div id="player-section" class="hidden">
+        <div class="player-top">
+          <button class="close-btn" onclick="closePlayer()">✕ 닫기</button>
+        </div>
         <video id="video-player" controls playsinline></video>
       </div>
-      <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
     </section>
   </div>
 

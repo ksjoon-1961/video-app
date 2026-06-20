@@ -23,5 +23,7 @@ async def video_url(video_id: str, auth: dict = Depends(get_auth_context)):
     video = await catalog.get_video_by_id(video_id, auth["token"])
     if not video:
         raise HTTPException(status_code=404, detail="영상을 찾을 수 없습니다")
+    if not video.get("is_ready") or not video.get("storage_path"):
+        raise HTTPException(status_code=409, detail="video not ready")
     url = await storage.create_signed_url(video["storage_path"], auth["token"])
     return {"url": url, "expires_in": settings.SIGNED_URL_TTL}

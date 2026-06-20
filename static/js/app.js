@@ -1,5 +1,13 @@
 // sb (Supabase client) is initialized in index.html before this script loads
 
+/* ── 화면 높이 보정 ── */
+function setAppHeight() {
+  document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+}
+setAppHeight();
+window.addEventListener('resize', setAppHeight);
+window.addEventListener('orientationchange', () => setTimeout(setAppHeight, 150));
+
 /* ── PWA 설치 프롬프트 ── */
 let _installPrompt = null;
 
@@ -51,12 +59,23 @@ function setLoading(btnId, loading) {
     : (btnId === 'login-btn' ? '로그인' : '회원가입');
 }
 
+/* ── 플레이어 닫기 ── */
+function closePlayer() {
+  const videoEl = document.getElementById('video-player');
+  videoEl.pause();
+  videoEl.src = '';
+  document.getElementById('player-section').classList.add('hidden');
+  document.getElementById('player-msg').textContent = '';
+  document.getElementById('player-msg').className = 'msg';
+}
+
 /* ── 영상 재생 ── */
 async function playVideo(videoId, token, btn) {
   const playerSection = document.getElementById('player-section');
   const videoEl       = document.getElementById('video-player');
   const playerMsg     = document.getElementById('player-msg');
 
+  videoEl.pause();
   videoEl.src = '';
   playerSection.classList.add('hidden');
   playerMsg.textContent = '';
@@ -71,7 +90,10 @@ async function playVideo(videoId, token, btn) {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
-      playerMsg.textContent = '영상을 불러오지 못했습니다.';
+      const data = await res.json().catch(() => ({}));
+      playerMsg.textContent = data.detail === 'video not ready'
+        ? '준비 중입니다.'
+        : '영상을 불러오지 못했습니다.';
       playerMsg.className = 'msg error';
       return;
     }
@@ -79,7 +101,6 @@ async function playVideo(videoId, token, btn) {
     videoEl.src = url;
     videoEl.load();
     playerSection.classList.remove('hidden');
-    playerSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   } catch (err) {
     playerMsg.textContent = '오류: ' + err.message;
     playerMsg.className = 'msg error';
@@ -111,7 +132,17 @@ async function loadVideos(token) {
       const btn = document.createElement('button');
       btn.className   = 'video-btn';
       btn.textContent = video.name;
-      btn.onclick     = () => playVideo(video.id, token, btn);
+
+      if (video.is_ready) {
+        btn.onclick = () => playVideo(video.id, token, btn);
+      } else {
+        btn.classList.add('not-ready');
+        btn.onclick = () => {
+          const playerMsg = document.getElementById('player-msg');
+          playerMsg.textContent = '준비 중입니다.';
+          playerMsg.className = 'msg';
+        };
+      }
       container.appendChild(btn);
     });
   } catch (err) {
@@ -165,10 +196,11 @@ async function handleSignup(e) {
 
 /* ── 로그아웃 ── */
 async function handleLogout() {
+  closePlayer();
   await sb.auth.signOut();
   document.getElementById('video-buttons').innerHTML = '';
-  document.getElementById('player-section').classList.add('hidden');
-  document.getElementById('video-player').src = '';
+  document.getElementById('player-msg').textContent = '';
+  document.getElementById('player-msg').className = 'msg';
   userSection.classList.add('hidden');
   authSection.classList.remove('hidden');
   setMsg('');

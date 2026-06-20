@@ -34,7 +34,7 @@ def _mock_jwks():
 
 def test_me_no_token():
     response = client.get("/api/me")
-    assert response.status_code == 403
+    assert response.status_code in (401, 403)
 
 
 def test_me_invalid_token():

@@ -7,6 +7,7 @@ class Video(BaseModel):
     name: str
     storage_path: str
     sort_order: int
+    is_ready: bool = False
 
 
 class SignedUrlResponse(BaseModel):

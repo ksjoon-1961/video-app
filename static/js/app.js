@@ -215,9 +215,19 @@ async function showUser(session) {
   await loadVideos(session.access_token);
 }
 
+/* ── 로그인 모듈 가용 여부 확인 ── */
+function ensureSb() {
+  if (!sb) {
+    setMsg('로그인 모듈을 불러오지 못했습니다. 새로고침 해주세요.', true);
+    return false;
+  }
+  return true;
+}
+
 /* ── 로그인 ── */
 async function handleLogin(e) {
   e.preventDefault();
+  if (!ensureSb()) return;
   setLoading('login-btn', true);
   try {
     const { data, error } = await sb.auth.signInWithPassword({
@@ -236,6 +246,7 @@ async function handleLogin(e) {
 /* ── 회원가입 ── */
 async function handleSignup(e) {
   e.preventDefault();
+  if (!ensureSb()) return;
   setLoading('signup-btn', true);
   try {
     const { error } = await sb.auth.signUp({
@@ -264,6 +275,10 @@ async function handleLogout() {
 }
 
 /* ── 페이지 로드 시 기존 세션 복원 ── */
-sb.auth.getSession().then(({ data: { session } }) => {
-  if (session) showUser(session);
-});
+if (sb) {
+  sb.auth.getSession().then(({ data: { session } }) => {
+    if (session) showUser(session);
+  });
+} else {
+  setMsg('로그인 모듈을 불러오지 못했습니다. 새로고침 해주세요.', true);
+}

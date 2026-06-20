@@ -176,9 +176,13 @@
     </section>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- Supabase SDK 자체 호스팅 (jsdelivr CDN 미로딩 시 'sb is not defined' 방지) -->
+  <script src="/static/vendor/supabase.js"></script>
   <script>
-    const sb = supabase.createClient("{{ supabase_url }}", "{{ supabase_anon_key }}");
+    // SDK 로드 실패 시에도 앱이 'sb is not defined'로 깨지지 않도록 방어
+    const sb = (window.supabase && supabase.createClient)
+      ? supabase.createClient("{{ supabase_url }}", "{{ supabase_anon_key }}")
+      : null;
   </script>
   <script src="/static/js/app.js"></script>
   <script>

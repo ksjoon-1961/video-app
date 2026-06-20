@@ -1,8 +1,9 @@
-const CACHE = "v4";
+const CACHE = "v5";
 const STATIC_URLS = [
   "/",
   "/static/css/style.css",
   "/static/js/app.js",
+  "/static/vendor/supabase.js",
   "/static/manifest.json",
   "/static/icons/icon-192.png",
   "/static/icons/icon-512.png",
